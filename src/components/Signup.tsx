@@ -1,11 +1,16 @@
 import { Button, FormControl, FormHelperText, FormLabel } from '@material-ui/core'
-import { DatePicker } from '@material-ui/pickers'
+// import { DatePicker } from '@material-ui/pickers'
 import { Box, FormControlLabel, InputLabel, MenuItem, OutlinedInput, Radio, RadioGroup, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
-import { AnyRecord } from 'dns'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import Navbar from './Navbar'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth, db } from '../firebaseConfig'
+import { collection, addDoc } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom';
+import { width } from '@mui/system'
+
 
 
 
@@ -46,42 +51,121 @@ type SignupPageProps = {
 
 const Signup = () => {
   const { register, handleSubmit, formState: { errors }, control } = useForm<SignupPageProps>()
-  const [gender, setGender] = useState("")
-  const [countries, setCountries] = useState([])
-  const [state, setState] = useState('')
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [mobileNumber, setMobileNumber] = useState("")
-  const [email, setEmail] = useState("")
+  const [gender, setGender] = useState<any>()
+  const [countries, setCountries] = useState<any>([])
+  const [state, setState] = useState<any>()
+  const [firstName, setFirstName] = useState<string>("")
+  const [lastName, setLastName] = useState<string>("")
+  const [mobileNumber, setMobileNumber] = useState<any>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<any>("")
+  const [birthdate, setBirthdate] = useState<any>()
+  const [AddressLine1, setAddressLine1] = useState<string>("")
+  const [AddressLine2, setAddressLine2] = useState<string>("")
+  const [pincode, setPinCode] = useState<any>()
+  const [successMsg, setSuccessMsg] = useState<any>("")
+  const [errorMsg, setErrorMsg] = useState<any>("")
 
+
+
+  const navigate = useNavigate()
 
 
   const stateData = ["Gujarat", "Maharashtra", "Punjab", "Goa", "Rajasthan"]
 
-  const handleStateChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
-    setState(event?.target.value)
-  }
-  console.log(state)
+  // const handleStateChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
+  //   setState(event?.target.value)
+  // }
+  // console.log(state)
 
-  useEffect(() => {
-    const data = require("../CountryData.json")
-    // console.log("country", data)
-    setCountries(data)
-  }, [])
+  // useEffect(() => {
+  //   const data = require("../CountryData.json")
+  //   // console.log("country", data)
+  //   setCountries(data)
+  // }, [])
 
-  const handleCountrySelect = (e: any) => {
-    console.log(e.target.value)
-  }
+  // const handleCountrySelect = (e: any) => {
+  //   console.log(e.target.value)
+  // }
 
-  const onSubmit = (data: any) => {
-    console.log("SignupData", data);
+  // const handleCountrySelect = (event: SelectChangeEvent<any>) => {
+  //   setCountries(event.target.value)
+  // }
+
+  const onSubmit = (form: any, e: any) => {
+    e.preventDefault();
+    console.log(firstName, email, password)
+
+
+    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
+      console.log("user", userCredential)
+      const user = userCredential.user   //user define
+      const initialCartValue = 0         //initially each new user cart will be 0
+      console.log(user)
+      const userObj = {
+        FirstName: firstName, Email: email, LastName: lastName, MobileNumber: mobileNumber, Password: password, Birthdate: birthdate, AddressLine1: AddressLine1, AddressLine2: AddressLine2, Pincode: pincode,
+        cart: initialCartValue, uid: user.uid
+      }
+      console.log("user", userObj)
+
+
+      // "users" is folder name in storage of firebase
+      addDoc(collection(db, "users"), userObj).then(() => {
+        setSuccessMsg("New User added successfully!!!!!")
+        setFirstName("")
+        setMobileNumber("")
+        setLastName("")
+        setEmail("")
+        setPinCode("")
+        setPassword("")
+        setAddressLine1("")
+        setGender("")
+        setAddressLine2("")
+        setCountries("")
+        setState("")
+        setErrorMsg("")
+        setTimeout(() => {
+          setSuccessMsg("")
+          navigate("/login")
+        }, 3000)
+      }).catch((error) => setErrorMsg(error.message))
+    })
+      .catch((error) => {
+        console.log("error2", error)
+
+        // setErrorMsg(error.message)
+        // console.log("error2", error)
+        // if (error.Status == "Status code:400") {
+        // if (error.status == 400) {
+        //   setErrorMsg("Email is already in used.")
+        // }
+
+        // if (error.message == 'Firebase: Error(auth/invalid-email).') {
+        //   setErrorMsg("Please Fill All Required Email")
+        // }
+        if (error.message) {
+          setErrorMsg(" Email is already in used.")
+        }
+
+      })
   };
 
+  console.log("errorMsg", errorMsg)
+
+  // const signUpRegister = async () => {
+  //   try{
+  //   const user = await createUserWithEmailAndPassword(auth, email, password)
+  //   console.log(user)
+  //   } catch(error){
+  //     console.log(error.message)
+  //   }
+  // }
 
 
-  const genderSelectionHandler = () => {
-    setGender(gender)
-  }
+
+  // const genderSelectionHandler = () => {
+  //   setGender(gender)
+  // }
 
   return (
     <Typography className="SignupPage">
@@ -106,57 +190,86 @@ const Signup = () => {
           }}
         >
           <h3>Signup here to get Biggest Discount</h3>
-          <Controller
-            name="firstName"
-            control={control}
-            render={(props) => (
-              <TextField
-                variant="standard"
-                {...props}
-                // style={{ width: { xs: "100%", md: "80%", sm: "100%" } }}
-                style={{ width: "40vw" }}
-                label="First Name"
-                {...register("firstName", {
-                  required: "First Name is Required",
-                  minLength: {
-                    value: 3,
-                    message: "Name field must contain 3 character",
-                  },
-                  maxLength: {
-                    value: 12,
-                    message: "name field not contain more than 12 character",
-                  },
+          {successMsg && <Typography style={{ color: "green" }}>
+            {successMsg}
+          </Typography>}
+          {errorMsg && <> <Typography style={{ color: "red", width: "100%" }}>
+            {errorMsg}
+          </Typography> </>}
 
-                })}
-                onChange={(e: any) => setFirstName(e.target.value)}
-              />
-            )}
-          />
-          {errors.firstName && (
-            <Typography
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                flex: 1,
-                // width: { xs: "100%", md: "80%", sm: "60%" },
-                color: "red",
-                fontSize: "small",
-                fontStyle: "oblique",
-                width: "40vw",
-              }}
-            >
-              {errors.firstName.message}
-            </Typography>
-          )}
+
+          <FormControl>
+            <Controller
+              name="firstName"
+              control={control}
+              render={(props: any) => (
+                <TextField
+                  variant="standard"
+                  {...props}
+                  value={firstName}
+                  // style={{ width: { xs: "100%", md: "80%", sm: "100%" } }}
+                  style={{ width: "40vw" }}
+                  label="First Name"
+                  {...register("firstName", {
+                    required: "First Name is Required",
+                    minLength: {
+                      value: 3,
+                      message: "Name field must contain 3 character",
+                    },
+                    maxLength: {
+                      value: 12,
+                      message: "name field not contain more than 12 character",
+                    },
+
+                  })}
+                  onChange={(e: any) => setFirstName(e.target.value)}
+                />
+              )}
+            />
+            {errors.firstName && (
+              <Typography
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  flex: 1,
+                  // width: { xs: "100%", md: "80%", sm: "60%" },
+                  color: "red",
+                  fontSize: "small",
+                  fontStyle: "oblique",
+                  width: "40vw",
+                }}
+              >
+                {errors.firstName.message}
+              </Typography>)
+            }
+            {/* {errors.firstName ? (
+              <Typography
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  flex: 1,
+                  // width: { xs: "100%", md: "80%", sm: "60%" },
+                  color: "red",
+                  fontSize: "small",
+                  fontStyle: "oblique",
+                  width: "40vw",
+                }}
+              >
+                {errors.firstName.message}
+              </Typography>) : (setFirstName(""))
+            } */}
+          </FormControl>
 
           <Controller
             name="lastName"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={lastName}
                 // style={{ width: { xs: "100%", md: "80%", sm: "100%" } }}
                 style={{ width: "40vw" }}
                 label="Last Name"
@@ -193,13 +306,16 @@ const Signup = () => {
             </Typography>
           )}
 
+
+
           <Controller
             name="mobileNumber"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={mobileNumber}
                 // style={{ width: { xs: "100%", md: "80%", sm: "100%" } }}
                 style={{ width: "40vw" }}
                 label="Mobile Number"
@@ -235,10 +351,11 @@ const Signup = () => {
           <Controller
             name="email"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={email}
                 // style={{ width: { xs: "100%", md: "80%", sm: "100%" } }}
                 style={{ width: "40vw" }}
                 label="E-Mail"
@@ -272,6 +389,51 @@ const Signup = () => {
             </Typography>
           )}
 
+          <FormControl>
+            <Controller
+              render={(props: any) => (
+                <TextField
+                  sx={{
+                    margin: "2px",
+                    width: "40vw"
+                  }}
+                  {...props}
+                  value={password}
+                  variant="standard"
+                  label="password"
+                  {...register("password", {
+                    required: "Password must be required",
+                    pattern: {
+                      value:
+                        /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
+                      message:
+                        "Password with minimum 8 character Upper & Lower case with symbol",
+                    },
+                  })}
+                  onChange={(e: any) => setPassword(e.target.value)}
+                />
+              )}
+              name="password"
+              control={control}
+            />
+            {errors.password && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  flex: 1,
+                  // width: { xs: "100%", md: "80%", sm: "60%" },
+                  width: "40vw",
+                  color: "red",
+                  fontSize: "small",
+                  fontStyle: "oblique",
+                }}
+              >
+                {errors.password.message}
+              </div>
+            )}
+          </FormControl>
           <FormControl error={Boolean(errors.gender)}>
             <FormLabel
               component="legend"
@@ -338,10 +500,6 @@ const Signup = () => {
               {errors.gender?.message}
             </FormHelperText>
           </FormControl>
-
-
-
-
           <FormControl>
             <FormLabel
               component="legend"
@@ -355,16 +513,18 @@ const Signup = () => {
               }}> Date of Birth :
             </FormLabel>
             <Controller
-              render={(props) => (
+              render={(props: any) => (
                 <TextField
                   style={{ width: "40vw" }}
                   sx={{ margin: "2px" }}
                   {...props}
+                  value={birthdate}
                   //   label="Birthdate"
                   type="date"
                   {...register("Birthdate", {
                     required: "Please select Birthdate",
                   })}
+                  onChange={(event: any) => setBirthdate(event.target.value)}
                 />
               )}
               name="Birthdate"
@@ -386,20 +546,20 @@ const Signup = () => {
               {errors.Birthdate?.message}
             </FormHelperText>
           </FormControl>
-
-
           <Controller
             name="AddressLine1"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={AddressLine1}
                 label="Address Line 1"
                 style={{ width: "40vw" }}
                 {...register("AddressLine1", {
                   required: "Please Enter your Address Line 1",
                 })}
+                onChange={(e: any) => setAddressLine1(e.target.value)}
               />
             )}
           />
@@ -424,15 +584,18 @@ const Signup = () => {
           <Controller
             name="AddressLine2"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={AddressLine2}
                 label="Address Line 2"
                 style={{ width: "40vw" }}
                 {...register("AddressLine2", {
                   required: "Please Enter your Address Line 2",
                 })}
+                onChange={(e: any) => setAddressLine2(e.target.value)}
+
               />
             )}
           />
@@ -453,14 +616,14 @@ const Signup = () => {
               {errors.AddressLine2.message}
             </Typography>
           )}
-
           <Controller
             name="pincode"
             control={control}
-            render={(props) => (
+            render={(props: any) => (
               <TextField
                 variant="standard"
                 {...props}
+                value={pincode}
                 label="Pin Code"
                 style={{ width: "40vw" }}
                 {...register("pincode", {
@@ -470,6 +633,7 @@ const Signup = () => {
                     message: "Please Enter 6 digit valid Pin Code of your area",
                   },
                 })}
+                onChange={(e: any) => setPinCode(e.target.value)}
               />
             )}
           />
@@ -490,64 +654,94 @@ const Signup = () => {
               {errors.pincode.message}
             </Typography>
           )}
-          <FormControl error={Boolean(errors.country)}>
+
+          {/* <FormControl>
             <Controller
+              name="country"
+              control={control}
               render={(props) => (
-                <TextField
-                  style={{ width: "40vw" }}
-                  sx={{ margin: "4px" }}
+                <Select
+                  label={countries}
+                  value={countries}
                   {...props}
-                  type="country"
-                  select
-                  label="Please Choose Country"
+
                   {...register("country", {
                     required: "Please choose your Country",
                   })}
                   onChange={handleCountrySelect}
+
                 >
-                  <FormLabel> Country</FormLabel>
-                  {
-                    countries.map((i: any) => {
-                      return (
-                        <MenuItem key={i.country}>{i.country}</MenuItem>
-                      )
-                    })
-                  }
-                </TextField>
+                  {countries.map((item: any) => {
+                    return <MenuItem key={item.country} >{item.country}</MenuItem>
+                  })}
+
+
+                </Select>
               )}
-              name="country"
-              control={control}
             />
             {errors.country && (
-              <FormHelperText
-                style={{
-                  display: "block",
-                  alignItems: "flex-start",
-                  justifyContent: "flex-start",
-                  flex: 1,
-                  width: "100%",
-                  color: "red",
-                  fontSize: "small",
-                  fontStyle: "oblique",
-                }}
-              >
-                {errors.country.message}
-              </FormHelperText>
+              <FormHelperText>{errors.country.message}</FormHelperText>
             )}
-          </FormControl>
 
-          <FormControl>
+          </FormControl> */}
 
+          {/* <Controller
+            render={(props: any) => (
+              <TextField
+                style={{ width: "40vw" }}
+                sx={{ margin: "5px" }}
+                //   id="full-width-text-field"
+
+                {...props}
+                value={countries}
+                type="country"
+                select
+                label="Please Choose country"
+                {...register("country", {
+                  required: "Please choose your country",
+                })}
+              // onChange={(event: any) => setCountries(event.target.value)}
+              >
+                <FormLabel>Select your Country</FormLabel>
+                {
+                  countries.map((item: any) => {
+                    return (
+                      <MenuItem key={item.country} value={item.country} >{item.country}</MenuItem>
+                    )
+                  })
+                }
+              </TextField>
+            )}
+            name="country"
+            control={control}
+          />
+          {errors.country && (
+            <FormHelperText
+              style={{
+                display: "block",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                flex: 1,
+                width: "100%",
+                color: "red",
+                fontSize: "small",
+                fontStyle: "oblique",
+              }}
+            >
+              {errors.country.message}
+            </FormHelperText>
+          )} */}
+          {/* <FormControl>
             <Controller
               name='state'
               control={control}
-              render={(props) => (
+              render={(props: any) => (
                 <Select
                   value={state}
                   style={{ width: "40vw" }}
                   type="state"
                   // input={<OutlinedInput id="select-multiple-chip" label="Please select state" />}
-                  label="Please select state "
+                  label="Please select state"
                   sx={{ margin: "2px" }}
                   {...props}
                   {...register("state", {
@@ -555,9 +749,8 @@ const Signup = () => {
                   })}
                   onChange={handleStateChange}
                 >
-                  <MenuItem disabled value="">
-                    <em>Please Select State</em>
-                  </MenuItem>
+                  <FormLabel>Select your Country</FormLabel>
+
                   {
                     stateData.map((item) => {
                       return (
@@ -582,23 +775,25 @@ const Signup = () => {
                 {errors.state.message}
               </FormHelperText>
             )}
-          </FormControl>
+          </FormControl> */}
 
           <Button
             type="submit"
             style={{
-              width: "25%",
-              backgroundColor: "blueviolet",
+              width: "40vw",
+              backgroundColor: "Green",
               fontFamily: "inherit",
               fontSize: "large",
+              color: "yellow",
               fontWeight: "bolder",
-              color: "snow",
-              borderRadius: "50%",
+              // color: "snow",
+              borderRadius: "2%",
               margin: "3%",
             }}
             variant="contained"
             color="primary"
           >Submit</Button>
+
 
           <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
             Already Have an Account???

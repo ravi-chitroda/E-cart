@@ -18,9 +18,50 @@ import MoreIcon from '@mui/icons-material/MoreVert';
 import Search from '@mui/icons-material/Search';
 import { ShoppingCart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+// import ecart from "../Images/ecart.jpg"
+// import logo3 from "../Images/logo3.png"
+import { collection, doc, getDocs, query, where } from 'firebase/firestore'
+import { useEffect, useState } from 'react'
+import { auth, db } from '../firebaseConfig'
+import { setSourceMapRange } from 'typescript';
+
+// import ECart from "../Images/ECart.png"
+
+
 
 const Navbar = () => {
   const navigate = useNavigate()
+  // const [loggedUser, setLoggedUser] = useState<any>("")
+
+  const GetCurrentUser = () => {
+    const [user, setUser] = useState<any>('')
+    const userCollectionRef = collection(db, "users")
+
+    useEffect(() => {
+      auth.onAuthStateChanged(userLogged => {
+        if (userLogged) {
+          const getUsers = async () => {
+            const q = query(collection(db, "users"), where("uid", "==", userLogged.uid))  //for match with firbase uid
+            // console.log(q)
+            const data = await getDocs(q) //checking all data of user if it exist and fetch data from database
+            // setUser(getDocs)
+            console.log("data", data)
+            setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+
+          }
+          getUsers()
+        }
+        else {
+          setUser(null)
+        }
+      })
+    }, [])
+    return user
+  }
+  const loggedUser = GetCurrentUser();
+  if (loggedUser) {
+    console.log("logged User", loggedUser[0].email)
+  }
 
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -47,10 +88,18 @@ const Navbar = () => {
     handleMobileMenuClose();
     navigate("/profile")
   };
+  const handleSignup = () => {
+    navigate("/signup")
+  }
 
   const handleCartButton = () => {
     setAnchorEl(null)
     navigate("/cart")
+  }
+  const handleLogOut = () => {
+    auth.signOut().then(() => {
+      navigate("/login")
+    })
   }
 
   const handleNotificationButton = () => {
@@ -79,9 +128,17 @@ const Navbar = () => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuCloseToProfile}>Profile</MenuItem>
-      {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
-      <MenuItem onClick={handleMenuClose}>Login</MenuItem>
+      {!loggedUser && <Typography>
+        <MenuItem onClick={handleMenuCloseToProfile}>Profile</MenuItem>
+        <MenuItem onClick={handleMenuClose}>Login</MenuItem>
+        <MenuItem onClick={handleSignup}>Register</MenuItem>
+      </Typography>
+      }
+      {loggedUser && <Typography>
+        <MenuItem onClick={handleMenuCloseToProfile}>Profile</MenuItem>
+        <MenuItem onClick={handleLogOut}>Logout</MenuItem>
+      </Typography>
+      }
 
     </Menu>
   );
@@ -153,40 +210,48 @@ const Navbar = () => {
             >
               <MenuIcon />
             </IconButton>
+
+            {/* Logo */}
             <Typography
-              variant="h6"
+              // variant="h6"
               noWrap
               component="div"
               sx={{ display: { xs: 'none', sm: 'block' } }}
+              style={{ height: "80px" }}
             >
-              E-Cart
+              {/* <img src={ecart} /> */}
+              {/* <img src={logo3} /> */}
+
+              {/* <img src={ECart} /> */}
             </Typography>
-            {/* <Search> */}
-            {/* <SearchIconWrapper> */}
-            {/* <SearchIcon /> */}
-            {/* </SearchIconWrapper> */}
-            {/* <InputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            /> */}
-            {/* </Search> */}
+
+
+            {/* cart button */}
+
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleCartButton} >
-                <Badge badgeContent={4} color="error"  >
-                  <ShoppingCart />
-                </Badge>
-              </IconButton>
-              <IconButton
-                size="large"
-                aria-label="show 17 new notifications"
-                color="inherit"
-                onClick={handleNotificationButton}
-              >
-                <Badge badgeContent={17} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+              {loggedUser && <Typography>
+                <IconButton size="large" aria-label="show 4 new mails" color="inherit" onClick={handleCartButton} >
+                  <Badge badgeContent={loggedUser[0].cart} color="error"  >
+                    <ShoppingCart />
+                  </Badge>
+                </IconButton>
+
+                {/* //Notification  */}
+                <IconButton
+                  size="large"
+                  aria-label="show 17 new notifications"
+                  color="inherit"
+                  onClick={handleNotificationButton}
+                >
+                  <Badge badgeContent={1} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
+              </Typography>
+              }
+
+              {/* Profile Button */}
               <IconButton
                 size="large"
                 edge="end"
@@ -198,7 +263,9 @@ const Navbar = () => {
               >
                 <AccountCircle />
               </IconButton>
+
             </Box>
+
             <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
               <IconButton
                 size="large"
@@ -216,7 +283,7 @@ const Navbar = () => {
         {renderMobileMenu}
         {renderMenu}
       </Box>
-    </div>
+    </div >
   )
 }
 

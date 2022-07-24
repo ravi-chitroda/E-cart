@@ -38,6 +38,7 @@ type SignupPageProps = {
   countries: any
   // SkipAny: Any
   state: any
+  userType: any
   // gender: React.ReactNode
   // genderSelectionHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
   // onChange?: ((event: React.SyntheticEvent<Element, Event>, checked: boolean) => void)
@@ -65,6 +66,7 @@ const Signup = () => {
   const [pincode, setPinCode] = useState<any>()
   const [successMsg, setSuccessMsg] = useState<any>("")
   const [errorMsg, setErrorMsg] = useState<any>("")
+  const [userType, setUserType] = useState<string>("")
 
 
 
@@ -103,7 +105,7 @@ const Signup = () => {
       const initialCartValue = 0         //initially each new user cart will be 0
       console.log(user)
       const userObj = {
-        FirstName: firstName, Email: email, LastName: lastName, MobileNumber: mobileNumber, Password: password, Birthdate: birthdate, AddressLine1: AddressLine1, AddressLine2: AddressLine2, Pincode: pincode,
+        FirstName: firstName, Email: email, LastName: lastName, UserType: userType, MobileNumber: mobileNumber, Password: password, Birthdate: birthdate, AddressLine1: AddressLine1, AddressLine2: AddressLine2, Pincode: pincode,
         cart: initialCartValue, uid: user.uid
       }
       console.log("user", userObj)
@@ -124,6 +126,7 @@ const Signup = () => {
         setCountries("")
         setState("")
         setErrorMsg("")
+        setUserType("")
         setTimeout(() => {
           setSuccessMsg("")
           navigate("/login")
@@ -654,6 +657,47 @@ const Signup = () => {
               {errors.pincode.message}
             </Typography>
           )}
+
+          <FormControl>
+            <Controller
+              name='userType'
+              control={control}
+              render={(props: any) => (
+                <Select
+                  value={userType}
+                  style={{ width: "40vw" }}
+                  type="userType"
+                  // input={<OutlinedInput id="select-multiple-chip" label="Please select state" />}
+                  label="userType"
+                  sx={{ margin: "2px" }}
+                  {...props}
+                  {...register("userType", {
+                    required: "Please choose your userType",
+                  })}
+                  onChange={(e: any) => setUserType(e.target.value)}
+                >
+                  {/* <FormLabel>Select Who you are</FormLabel> */}
+                  <MenuItem value="User">User</MenuItem>
+                  <MenuItem value="Admin">Admin</MenuItem>
+                </Select>
+              )}
+            />
+            {errors.userType && (
+              <FormHelperText style={{
+                display: "block",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                flex: 1,
+                width: "100%",
+                color: "red",
+                fontSize: "small",
+                fontStyle: "oblique",
+              }}>
+                {errors.userType.message}
+              </FormHelperText>
+            )}
+          </FormControl>
+
 
           {/* <FormControl>
             <Controller

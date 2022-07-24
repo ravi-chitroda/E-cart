@@ -16,7 +16,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import Search from '@mui/icons-material/Search';
-import { ShoppingCart } from '@mui/icons-material';
+import { Home, Sell, ShoppingCart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 // import ecart from "../Images/ecart.jpg"
 // import logo3 from "../Images/logo3.png"
@@ -26,7 +26,9 @@ import { auth, db } from '../firebaseConfig'
 import { setSourceMapRange } from 'typescript';
 
 // import ECart from "../Images/ECart.png"
-
+//  type navbarProps = {
+//   Admin : String
+//  }
 
 
 const Navbar = () => {
@@ -60,7 +62,7 @@ const Navbar = () => {
   }
   const loggedUser = GetCurrentUser();
   if (loggedUser) {
-    console.log("logged User", loggedUser[0].email)
+    console.log("logged User", loggedUser)
   }
 
 
@@ -105,6 +107,15 @@ const Navbar = () => {
   const handleNotificationButton = () => {
     setAnchorEl(null)
     navigate("/notification")
+  }
+  const handleSellIcon = () => {
+    setAnchorEl(null)
+    navigate("/sellProducts")
+  }
+
+  const handleHomeIcon = () => {
+    setAnchorEl(null)
+    navigate("/")
   }
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -249,6 +260,24 @@ const Navbar = () => {
                   </Badge>
                 </IconButton>
               </Typography>
+              }
+
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={handleHomeIcon}
+              >
+                <Home />
+              </IconButton>
+
+              {loggedUser && loggedUser[0].UserType == "Admin" ?
+                <IconButton
+                  size="large"
+                  color="inherit"
+                  onClick={handleSellIcon}
+                >
+                  <Sell />
+                </IconButton> : <Typography></Typography>
               }
 
               {/* Profile Button */}

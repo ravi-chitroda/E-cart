@@ -8,6 +8,7 @@ import NotFound from './components/NotFound';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
 import Notification from './components/Notification';
+import SellProducts from './components/SellProducts';
 
 
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/notification" element={<Notification />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path='/sellProducts' element={<SellProducts />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

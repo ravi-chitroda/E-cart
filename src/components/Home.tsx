@@ -34,13 +34,13 @@ const Home = () => {
   }
   const loggedUser = GetCurrentUser();
   if (loggedUser) {
-    console.log("logged User", loggedUser[0].email)
+    console.log("logged User", loggedUser[0].Email)
   }
 
   return (
     <div>
       <Navbar />
-      <p>{loggedUser ? loggedUser[0].email : "No Logged User"}</p>
+      <p>{loggedUser ? loggedUser[0].Email : "No Logged User"}</p>
     </div>
   )
 }

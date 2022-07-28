@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { Box } from "@mui/system";
+import { productType } from "../Types/Product";
 
 // type itemProps = {
 //     type: any
@@ -21,32 +22,22 @@ import { Box } from "@mui/system";
 //     shoe: any
 // }
 
-type productProps = {
-  type: any;
-  productTitle: string;
-  productType: string;
-  brand: string;
-  description: string;
-  warranty: string;
-  productImage: string;
-  price: string;
-  customerSupport: string;
-};
-
 // const AllProducts = (props: itemProps) => {
 const AllProducts = () => {
   //   console.log("props", props.type);
-  const [products, setProducts] = useState<any>([]);
+  const [products, setProducts] = useState<Array<productType> | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const getProducts = () => {
-      const productsArray: { id: string }[] = [];
+      const productsArray: Array<any> = [];
       const path = "products";
       console.log("path", path);
 
       getDocs(collection(db, path))
         .then((QuerySnapshot) => {
-          QuerySnapshot.forEach((doc) => {
+          QuerySnapshot.forEach((doc: any) => {
             productsArray.push({ ...doc.data(), id: doc.id });
             console.log(doc.id, " =>", doc.data());
           });
@@ -61,17 +52,18 @@ const AllProducts = () => {
   console.log("products", products);
 
   return (
-    <div>
+    <Box>
       {/* <Navbar /> */}
       <Box>
-        {products.map((product: any) => {
-          <ProductContainer
-            key={product.id}
-            // product = {product}
-          />;
-        })}
+        {products &&
+          products.map((product) => {
+            {
+              console.log("products", products);
+            }
+            return <ProductContainer product={product} />;
+          })}
       </Box>
-    </div>
+    </Box>
   );
 };
 

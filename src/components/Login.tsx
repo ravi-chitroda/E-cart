@@ -1,105 +1,109 @@
-import { TextField } from '@material-ui/core'
-import { Pattern, TextFields } from '@mui/icons-material'
-import { Box, Button, Typography } from '@mui/material'
-import { fontFamily } from '@mui/system'
-import React from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
-import { useNavigate } from 'react-router-dom'
-import Navbar from './Navbar'
-import { error } from 'console'
+import { TextField } from "@material-ui/core";
+import { Pattern, TextFields } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
+import { fontFamily } from "@mui/system";
+import React from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { error } from "console";
 
 type LoginFormProps = {
-  name: string,
-  email: string,
-  password: string
-
-
-}
+  name: string;
+  email: string;
+  password: string;
+};
 
 const Login = () => {
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<any>("")
-  const [successMsg, setSuccessMsg] = useState<any>("")
-  const [errorMsg, setErrorMsg] = useState<any>("")
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<any>("");
+  const [successMsg, setSuccessMsg] = useState<any>("");
+  const [errorMsg, setErrorMsg] = useState<any>("");
 
   const auth = getAuth();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-
-
-  const { register, handleSubmit, formState: { errors }, control } = useForm<LoginFormProps>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<LoginFormProps>();
   const onSubmit = (data: any) => {
-    console.log(data)
-  }
+    console.log(data);
+  };
 
   const handleLoginButton = (e: any) => {
-    e.preventDefault()
-    signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-      console.log("userCredential", userCredential)
-      setSuccessMsg("Logged in Suuceesfully!!!")
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("userCredential", userCredential);
+        setSuccessMsg("Logged in Suuceesfully!!!");
 
-      setEmail("")
-      setPassword("")
-      setErrorMsg("")
-      setTimeout(() => {
-        setSuccessMsg("")
-        navigate("/")
-      }, 3000)
-    }).catch((error) => {
-      console.log("error", JSON.stringify(error))
-      console.log("error.message", error.message)
-      // if (error.message = "INVALID_PASSWORD") {
-      //   setErrorMsg("Password is Incorrect, Please use actual Password")
-      // }
-      // if (error.message = "EMAIL_NOT_FOUND") {
-      //   setErrorMsg("Email is not Found, Please Signup first to Login here")
-      // }
-      // if (error.message = "INVALID_EMAIL") {
-      //   setErrorMsg("Please fill all required detail")
-      // }
-      if (error.code === "auth/") {
-        setErrorMsg("The password you entered does not match to this user.");
-      }
-      else {
-        setErrorMsg(error.message);
-      }
-
-    })
+        setEmail("");
+        setPassword("");
+        setErrorMsg("");
+        setTimeout(() => {
+          setSuccessMsg("");
+          navigate("/");
+        }, 3000);
+      })
+      .catch((error) => {
+        console.log("error", JSON.stringify(error));
+        console.log("error.message", error.message);
+        // if (error.message = "INVALID_PASSWORD") {
+        //   setErrorMsg("Password is Incorrect, Please use actual Password")
+        // }
+        // if (error.message = "EMAIL_NOT_FOUND") {
+        //   setErrorMsg("Email is not Found, Please Signup first to Login here")
+        // }
+        // if (error.message = "INVALID_EMAIL") {
+        //   setErrorMsg("Please fill all required detail")
+        // }
+        if (error.code === "auth/") {
+          setErrorMsg("The password you entered does not match to this user.");
+        } else {
+          setErrorMsg(error.message);
+        }
+      });
     // setErrorMsg("")
     // // console.log("login Error", error)
     // console.log("login Error", errorMsg)
-  }
+  };
 
   return (
-    <Typography className='LoginPage'>
+    <Typography className="LoginPage">
       <Navbar />
-      <Box component="span"
+      <Box
+        component="span"
         sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          flexDirection: 'column'
+          flexDirection: "column",
         }}
       >
-
-        <form onSubmit={handleSubmit(onSubmit)}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column",
             // width: "40vw",
-          }}>
-          <Typography className='LogindHeader'
-          //   style={{
-          //   display : "flex",
-          //   justifyContent: "center",
-          //   alignItems : "center",
-          // }}
+          }}
+        >
+          <Typography
+            className="LogindHeader"
+            //   style={{
+            //   display : "flex",
+            //   justifyContent: "center",
+            //   alignItems : "center",
+            // }}
           >
             <h2
               style={{
@@ -107,15 +111,22 @@ const Login = () => {
                 color: "blueviolet",
                 fontFamily: "roboto",
               }}
-            >Please Fill All Detail For Login</h2>
+            >
+              Please Fill All Detail For Login
+            </h2>
           </Typography>
 
-          {successMsg && <Typography style={{ color: "green" }}>
-            {successMsg}
-          </Typography>}
-          {errorMsg && <> <Typography style={{ color: "red", width: "100%" }}>
-            {errorMsg}
-          </Typography> </>}
+          {successMsg && (
+            <Typography style={{ color: "green" }}>{successMsg}</Typography>
+          )}
+          {errorMsg && (
+            <>
+              {" "}
+              <Typography style={{ color: "red", width: "100%" }}>
+                {errorMsg}
+              </Typography>{" "}
+            </>
+          )}
 
           <Controller
             name="email"
@@ -123,7 +134,7 @@ const Login = () => {
             render={(props: any) => (
               <TextField
                 style={{ width: "40vw" }}
-                // sx={{margin: "2px"}} 
+                // sx={{margin: "2px"}}
                 value={email}
                 {...props}
                 label="email"
@@ -133,13 +144,11 @@ const Login = () => {
                     value:
                       /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
                     message: "Please write your registered mail",
-                  }
+                  },
                 })}
                 onChange={(e: any) => setEmail(e.target.value)}
-
               />
             )}
-
           />
           {errors.email && (
             <Typography
@@ -153,7 +162,9 @@ const Login = () => {
                 fontSize: "medium",
                 fontStyle: "oblique",
               }}
-            >{errors.email.message}</Typography>
+            >
+              {errors.email.message}
+            </Typography>
           )}
 
           <Controller
@@ -162,7 +173,7 @@ const Login = () => {
                 style={{
                   margin: "2px",
                   // width: { xs: "100%", md: "80%", sm: "60%" },
-                  width: "40vw"
+                  width: "40vw",
                 }}
                 {...props}
                 value={password}
@@ -199,7 +210,9 @@ const Login = () => {
             </Typography>
           )}
 
-          <Button type="submit" aria-label='Submit'
+          <Button
+            type="submit"
+            aria-label="Submit"
             style={{
               width: "40vw",
               backgroundColor: "Green",
@@ -212,7 +225,8 @@ const Login = () => {
               margin: "3%",
             }}
             onClick={handleLoginButton}
-          >Submit
+          >
+            Submit
           </Button>
         </form>
 
@@ -222,32 +236,33 @@ const Login = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: "40vw"
+            width: "40vw",
           }}
         >
           Don't Have Account??? &nbsp;
-          <Typography style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-
-          }}>
-            <Typography sx={{
-              '&:hover': {
-                color: "green",
-              },
-              // mx: "4px",
-              marginRight: "6px"
-            }}>
+          <Typography
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                "&:hover": {
+                  color: "green",
+                },
+                // mx: "4px",
+                marginRight: "6px",
+              }}
+            >
               <Link
                 to={"/signup"}
                 style={{
                   textDecoration: "none",
                   fontWeight: "bolder",
                   fontSize: "22px",
-
                 }}
-
               >
                 {"   "} Sign Up
               </Link>{" "}
@@ -257,8 +272,7 @@ const Login = () => {
         </Typography>
       </Box>
     </Typography>
-  )
-}
+  );
+};
 
-export default Login
-
+export default Login;

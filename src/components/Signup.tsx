@@ -1,44 +1,59 @@
-import { Button, FormControl, FormHelperText, FormLabel } from '@material-ui/core'
+import {
+  Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+} from "@material-ui/core";
 // import { DatePicker } from '@material-ui/pickers'
-import { Box, FormControlLabel, InputLabel, MenuItem, OutlinedInput, Radio, RadioGroup, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Link, Navigate } from 'react-router-dom'
-import Navbar from './Navbar'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { auth, db } from '../firebaseConfig'
-import { collection, addDoc } from 'firebase/firestore'
-import { useNavigate } from 'react-router-dom';
-import { width } from '@mui/system'
-
-
-
+import {
+  Box,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Radio,
+  RadioGroup,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Link, Navigate } from "react-router-dom";
+import Navbar from "./Navbar";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { width } from "@mui/system";
 
 type SignupPageProps = {
-  name: string,
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string,
-  mobileNumber: number,
+  name: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  mobileNumber: number;
   // genderSelection: any,
   // label: any
-  label: string
+  label: string;
   // Birthdate: React.ReactNode
-  Birthdate: any
-  AddressLine1: string,
-  AddressLine2: string,
-  pincode: number,
-  contained: any,
-  gender: any
+  Birthdate: any;
+  AddressLine1: string;
+  AddressLine2: string;
+  pincode: number;
+  contained: any;
+  gender: any;
   // errors: { gender: any }
-  errors: { gender: { message: any } }
-  country: any
+  errors: { gender: { message: any } };
+  country: any;
   // map: any
-  countries: any
+  countries: any;
   // SkipAny: Any
-  state: any
-  userType: any
+  state: any;
+  userType: any;
   // gender: React.ReactNode
   // genderSelectionHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
   // onChange?: ((event: React.SyntheticEvent<Element, Event>, checked: boolean) => void)
@@ -46,34 +61,34 @@ type SignupPageProps = {
   // Male: any,
   // Other: any,
   // Gender: any
-
-
-}
+};
 
 const Signup = () => {
-  const { register, handleSubmit, formState: { errors }, control } = useForm<SignupPageProps>()
-  const [gender, setGender] = useState<any>()
-  const [countries, setCountries] = useState<any>([])
-  const [state, setState] = useState<any>()
-  const [firstName, setFirstName] = useState<string>("")
-  const [lastName, setLastName] = useState<string>("")
-  const [mobileNumber, setMobileNumber] = useState<any>("")
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<any>("")
-  const [birthdate, setBirthdate] = useState<any>()
-  const [AddressLine1, setAddressLine1] = useState<string>("")
-  const [AddressLine2, setAddressLine2] = useState<string>("")
-  const [pincode, setPinCode] = useState<any>()
-  const [successMsg, setSuccessMsg] = useState<any>("")
-  const [errorMsg, setErrorMsg] = useState<any>("")
-  const [userType, setUserType] = useState<string>("")
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<SignupPageProps>();
+  const [gender, setGender] = useState<any>();
+  const [countries, setCountries] = useState<any>([]);
+  const [state, setState] = useState<any>();
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [mobileNumber, setMobileNumber] = useState<any>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<any>("");
+  const [birthdate, setBirthdate] = useState<any>();
+  const [AddressLine1, setAddressLine1] = useState<string>("");
+  const [AddressLine2, setAddressLine2] = useState<string>("");
+  const [pincode, setPinCode] = useState<any>();
+  const [successMsg, setSuccessMsg] = useState<any>("");
+  const [errorMsg, setErrorMsg] = useState<any>("");
+  const [userType, setUserType] = useState<string>("");
 
+  const navigate = useNavigate();
 
-
-  const navigate = useNavigate()
-
-
-  const stateData = ["Gujarat", "Maharashtra", "Punjab", "Goa", "Rajasthan"]
+  const stateData = ["Gujarat", "Maharashtra", "Punjab", "Goa", "Rajasthan"];
 
   // const handleStateChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
   //   setState(event?.target.value)
@@ -96,45 +111,56 @@ const Signup = () => {
 
   const onSubmit = (form: any, e: any) => {
     e.preventDefault();
-    console.log(firstName, email, password)
+    console.log(firstName, email, password);
 
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("user", userCredential);
+        const user = userCredential.user; //user define
+        const initialCartValue = 0; //initially each new user cart will be 0
+        console.log(user);
+        const userObj = {
+          FirstName: firstName,
+          Email: email,
+          LastName: lastName,
+          UserType: userType,
+          MobileNumber: mobileNumber,
+          Password: password,
+          Birthdate: birthdate,
+          AddressLine1: AddressLine1,
+          AddressLine2: AddressLine2,
+          Pincode: pincode,
+          cart: initialCartValue,
+          uid: user.uid,
+        };
+        console.log("user", userObj);
 
-    createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
-      console.log("user", userCredential)
-      const user = userCredential.user   //user define
-      const initialCartValue = 0         //initially each new user cart will be 0
-      console.log(user)
-      const userObj = {
-        FirstName: firstName, Email: email, LastName: lastName, UserType: userType, MobileNumber: mobileNumber, Password: password, Birthdate: birthdate, AddressLine1: AddressLine1, AddressLine2: AddressLine2, Pincode: pincode,
-        cart: initialCartValue, uid: user.uid
-      }
-      console.log("user", userObj)
-
-
-      // "users" is folder name in storage of firebase
-      addDoc(collection(db, "users"), userObj).then(() => {
-        setSuccessMsg("New User added successfully!!!!!")
-        setFirstName("")
-        setMobileNumber("")
-        setLastName("")
-        setEmail("")
-        setPinCode("")
-        setPassword("")
-        setAddressLine1("")
-        setGender("")
-        setAddressLine2("")
-        setCountries("")
-        setState("")
-        setErrorMsg("")
-        setUserType("")
-        setTimeout(() => {
-          setSuccessMsg("")
-          navigate("/login")
-        }, 3000)
-      }).catch((error) => setErrorMsg(error.message))
-    })
+        // "users" is folder name in storage of firebase
+        addDoc(collection(db, "users"), userObj)
+          .then(() => {
+            setSuccessMsg("New User added successfully!!!!!");
+            setFirstName("");
+            setMobileNumber("");
+            setLastName("");
+            setEmail("");
+            setPinCode("");
+            setPassword("");
+            setAddressLine1("");
+            setGender("");
+            setAddressLine2("");
+            setCountries("");
+            setState("");
+            setErrorMsg("");
+            setUserType("");
+            setTimeout(() => {
+              setSuccessMsg("");
+              navigate("/login");
+            }, 3000);
+          })
+          .catch((error) => setErrorMsg(error.message));
+      })
       .catch((error) => {
-        console.log("error2", error)
+        console.log("error2", error);
 
         // setErrorMsg(error.message)
         // console.log("error2", error)
@@ -147,13 +173,12 @@ const Signup = () => {
         //   setErrorMsg("Please Fill All Required Email")
         // }
         if (error.message) {
-          setErrorMsg(" Email is already in used.")
+          setErrorMsg(" Email is already in used.");
         }
-
-      })
+      });
   };
 
-  console.log("errorMsg", errorMsg)
+  console.log("errorMsg", errorMsg);
 
   // const signUpRegister = async () => {
   //   try{
@@ -163,8 +188,6 @@ const Signup = () => {
   //     console.log(error.message)
   //   }
   // }
-
-
 
   // const genderSelectionHandler = () => {
   //   setGender(gender)
@@ -193,13 +216,17 @@ const Signup = () => {
           }}
         >
           <h3>Signup here to get Biggest Discount</h3>
-          {successMsg && <Typography style={{ color: "green" }}>
-            {successMsg}
-          </Typography>}
-          {errorMsg && <> <Typography style={{ color: "red", width: "100%" }}>
-            {errorMsg}
-          </Typography> </>}
-
+          {successMsg && (
+            <Typography style={{ color: "green" }}>{successMsg}</Typography>
+          )}
+          {errorMsg && (
+            <>
+              {" "}
+              <Typography style={{ color: "red", width: "100%" }}>
+                {errorMsg}
+              </Typography>{" "}
+            </>
+          )}
 
           <FormControl>
             <Controller
@@ -223,7 +250,6 @@ const Signup = () => {
                       value: 12,
                       message: "name field not contain more than 12 character",
                     },
-
                   })}
                   onChange={(e: any) => setFirstName(e.target.value)}
                 />
@@ -244,8 +270,8 @@ const Signup = () => {
                 }}
               >
                 {errors.firstName.message}
-              </Typography>)
-            }
+              </Typography>
+            )}
             {/* {errors.firstName ? (
               <Typography
                 style={{
@@ -308,8 +334,6 @@ const Signup = () => {
               {errors.lastName.message}
             </Typography>
           )}
-
-
 
           <Controller
             name="mobileNumber"
@@ -398,7 +422,7 @@ const Signup = () => {
                 <TextField
                   sx={{
                     margin: "2px",
-                    width: "40vw"
+                    width: "40vw",
                   }}
                   {...props}
                   value={password}
@@ -448,7 +472,11 @@ const Signup = () => {
                 // marginLeft: "-10px",
                 width: "40vw",
                 marginBottom: "2px",
-              }}> Gender : </FormLabel>
+              }}
+            >
+              {" "}
+              Gender :{" "}
+            </FormLabel>
             <RadioGroup
               row
               aria-label="gender"
@@ -513,7 +541,10 @@ const Signup = () => {
                 flex: 1,
 
                 width: "40vw",
-              }}> Date of Birth :
+              }}
+            >
+              {" "}
+              Date of Birth :
             </FormLabel>
             <Controller
               render={(props: any) => (
@@ -532,7 +563,7 @@ const Signup = () => {
               )}
               name="Birthdate"
               control={control}
-            //   defaultValue=""
+              //   defaultValue=""
             />
             <FormHelperText
               style={{
@@ -598,7 +629,6 @@ const Signup = () => {
                   required: "Please Enter your Address Line 2",
                 })}
                 onChange={(e: any) => setAddressLine2(e.target.value)}
-
               />
             )}
           />
@@ -660,7 +690,7 @@ const Signup = () => {
 
           <FormControl>
             <Controller
-              name='userType'
+              name="userType"
               control={control}
               render={(props: any) => (
                 <Select
@@ -683,21 +713,22 @@ const Signup = () => {
               )}
             />
             {errors.userType && (
-              <FormHelperText style={{
-                display: "block",
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                flex: 1,
-                width: "100%",
-                color: "red",
-                fontSize: "small",
-                fontStyle: "oblique",
-              }}>
+              <FormHelperText
+                style={{
+                  display: "block",
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
+                  flex: 1,
+                  width: "100%",
+                  color: "red",
+                  fontSize: "small",
+                  fontStyle: "oblique",
+                }}
+              >
                 {errors.userType.message}
               </FormHelperText>
             )}
           </FormControl>
-
 
           {/* <FormControl>
             <Controller
@@ -836,20 +867,36 @@ const Signup = () => {
             }}
             variant="contained"
             color="primary"
-          >Submit</Button>
+          >
+            Submit
+          </Button>
 
-
-          <Typography style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Typography
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             Already Have an Account???
             <Typography>
-              <Link to={"/login"} style={{ textDecoration: "none", fontWeight: "bolder", fontSize: "22px" }} >
-                {"  "}  Login </Link> Here
+              <Link
+                to={"/login"}
+                style={{
+                  textDecoration: "none",
+                  fontWeight: "bolder",
+                  fontSize: "22px",
+                }}
+              >
+                {"  "} Login{" "}
+              </Link>{" "}
+              Here
             </Typography>
           </Typography>
         </form>
       </Box>
     </Typography>
-  )
-}
+  );
+};
 
-export default Signup
+export default Signup;

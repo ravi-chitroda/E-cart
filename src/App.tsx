@@ -10,6 +10,8 @@ import Cart from "./components/Cart";
 import Notification from "./components/Notification";
 import SellProducts from "./components/SellProducts";
 import AllProducts from "./product-Components/AllProducts";
+import PaymentPage from "./components/PaymentPage";
+import ProductDetail from "./components/ProductDetail";
 // import { watch } from 'fs';
 
 function App() {
@@ -25,7 +27,10 @@ function App() {
         <Route path="/notification" element={<Notification />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/sellProducts" element={<SellProducts />} />
+        <Route path="/paymentPage" element={<PaymentPage />} />
+        <Route path="/productDetail" element={<ProductDetail />} />
         <Route path="/allProducts" element={<AllProducts />} />
+
         {/* <Route path='/product-type/mobile' element={<AllProducts type={"Mobile"} />} /> */}
         {/* <Route
           path="/product-type/watch"

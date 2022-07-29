@@ -12,6 +12,7 @@ import {
 import { db } from "../firebaseConfig";
 import { Box } from "@mui/system";
 import { productType } from "../Types/Product";
+import { Container, Grid, Paper } from "@mui/material";
 
 // type itemProps = {
 //     type: any
@@ -38,7 +39,7 @@ const AllProducts = () => {
       getDocs(collection(db, path))
         .then((QuerySnapshot) => {
           QuerySnapshot.forEach((doc: any) => {
-            productsArray.push({ ...doc.data(), id: doc.id });
+            productsArray.push({ ...doc.data() });
             console.log(doc.id, " =>", doc.data());
           });
           setProducts(productsArray);
@@ -52,9 +53,15 @@ const AllProducts = () => {
   console.log("products", products);
 
   return (
-    <Box>
-      {/* <Navbar /> */}
-      <Box>
+    <Container sx={{ my: "20px" }}>
+      <Grid
+        container
+        spacing={2}
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        sx={{ my: "2px" }}
+      >
         {products &&
           products.map((product) => {
             {
@@ -62,8 +69,8 @@ const AllProducts = () => {
             }
             return <ProductContainer product={product} />;
           })}
-      </Box>
-    </Box>
+      </Grid>
+    </Container>
   );
 };
 

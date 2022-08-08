@@ -1,5 +1,6 @@
 export type productType = {
-  id: any;
+  product: any;
+  id: string;
   type: any;
   productTitle: string;
   productType?: string;

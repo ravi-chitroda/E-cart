@@ -3,13 +3,14 @@ import {
   Button,
   Card,
   Grid,
+  Pagination,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { productType } from "../Types/Product";
 
 type productObj = {
@@ -17,7 +18,7 @@ type productObj = {
 };
 
 const ProductContainer = (props: productObj) => {
-  console.log("productContainer", props);
+  // console.log("productContainer", props);
 
   const navigate = useNavigate();
 
@@ -29,29 +30,33 @@ const ProductContainer = (props: productObj) => {
     navigate("/paymentPage");
   };
 
-  const handleProductDetail = () => {
-    navigate("/productDetail");
-  };
+  // const handleProductDetail = () => {
+  //   navigate("/productDetail");
+  // };
+
+  console.log("props", props.product);
 
   return (
     <Card
       sx={{ height: 360, width: 360, mx: "10px", my: "10px" }}
       style={{ border: "2px solid #C0C0C0", borderRadius: "10px" }}
     >
-      <Box
-        component="img"
-        sx={{
-          height: 250,
-          width: 320,
-          // maxHeight: { xs: 233, md: 167 },
-          maxHeight: { xs: 350, md: 280 },
-          maxWidth: { xs: 350, md: 320 },
-        }}
-        onClick={handleProductDetail}
-        style={{ border: "1px", borderRadius: "4px", cursor: "pointer" }}
-        alt="Porduct Image"
-        src={props.product.productImage}
-      />
+      <Link to={`/product/${props.product.productTitle}/${props.product.id}`}>
+        <Box
+          component="img"
+          sx={{
+            height: 245,
+            width: 320,
+            // maxHeight: { xs: 233, md: 167 },
+            maxHeight: { xs: 350, md: 280 },
+            maxWidth: { xs: 350, md: 320 },
+          }}
+          // onClick={handleProductDetail}
+          style={{ border: "1px", borderRadius: "4px", cursor: "pointer" }}
+          alt="Porduct Image"
+          src={props.product.productImage}
+        />
+      </Link>
       <Box
         style={{
           display: "flex",
@@ -76,7 +81,7 @@ const ProductContainer = (props: productObj) => {
         }}
       >
         {" "}
-        only &#x20b9; {props.product.price}
+        Only &#x20b9; {props.product.price}
       </Box>
 
       <Box
@@ -113,6 +118,9 @@ const ProductContainer = (props: productObj) => {
           BUY NOW
         </Button>
       </Box>
+      <Link to={`/product/${props.product.productTitle}/${props.product.id}`}>
+        Product In Detail
+      </Link>
     </Card>
   );
 };

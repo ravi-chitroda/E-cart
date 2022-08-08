@@ -81,6 +81,7 @@ const SellProducts = () => {
       warranty: warranty,
     };
 
+    //Product and realted detail Add to firebase
     uploadBytes(storageRef, productImage).then(() => {
       getDownloadURL(storageRef)
         .then((url) => {

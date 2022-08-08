@@ -15,8 +15,6 @@ import ProductDetail from "./components/ProductDetail";
 // import { watch } from 'fs';
 
 function App() {
-  const { type } = useParams();
-
   return (
     <div className="App">
       <Routes>
@@ -27,10 +25,28 @@ function App() {
         <Route path="/notification" element={<Notification />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/sellProducts" element={<SellProducts />} />
-        <Route path="/paymentPage" element={<PaymentPage />} />
-        <Route path="/productDetail" element={<ProductDetail />} />
         <Route path="/allProducts" element={<AllProducts />} />
-
+        <Route path="/paymentPage" element={<PaymentPage />} />
+        {/* <Route
+          path="/productDetail"
+          element={
+            <ProductDetail
+              product={{
+                id: undefined,
+                type: undefined,
+                productTitle: "",
+                productType: undefined,
+                brand: "",
+                description: "",
+                warranty: "",
+                productImage: "",
+                price: "",
+                customerSupport: "",
+              }}
+            />
+          }
+        /> */}
+        <Route path="/product/:title/:id" element={<ProductDetail />} />
         {/* <Route path='/product-type/mobile' element={<AllProducts type={"Mobile"} />} /> */}
         {/* <Route
           path="/product-type/watch"
@@ -122,7 +138,6 @@ function App() {
             )
           }
         /> */}
-
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

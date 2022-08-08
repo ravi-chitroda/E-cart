@@ -20,7 +20,14 @@ import { Home, Sell, ShoppingCart } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 // import ecart from "../Images/ecart.jpg"
 // import logo3 from "../Images/logo3.png"
-import { collection, doc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  QuerySnapshot,
+  where,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebaseConfig";
 import { setSourceMapRange } from "typescript";
@@ -36,6 +43,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   // const [loggedUser, setLoggedUser] = useState<any>("")
 
+  // TO find current user with GetCurrentUser Function with below function and set it into user variable
   const GetCurrentUser = () => {
     const [user, setUser] = useState<any>("");
     const userCollectionRef = collection(db, "users");
@@ -62,10 +70,12 @@ const Navbar = () => {
     }, []);
     return user;
   };
+
+  // document of that user stored in below loggedUser const
   const loggedUser = GetCurrentUser();
-  if (loggedUser) {
-    // console.log("logged User", loggedUser)
-  }
+  // if (loggedUser) {
+  //   // console.log("logged User", loggedUser)
+  // }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -210,6 +220,25 @@ const Navbar = () => {
     </Menu>
   );
 
+  // all item to be stored in this cartData variable
+  const [cartData, setCartData] = useState<any>([]);
+  if (loggedUser) {
+    const getCartData = async () => {
+      const cartArray: { id: string }[] = [];
+      const path = `cart-${loggedUser[0].uid}`;
+      // console.log("cart Path", path);
+      getDocs(collection(db, path)).then((QuerySnapshot) => {
+        QuerySnapshot.forEach((doc) => {
+          // console.log(doc.id, "=>>>>", doc.data());
+          cartArray.push({ ...doc.data(), id: doc.id });
+        });
+        setCartData(cartArray);
+      });
+      // .catch("got Some Error");
+    };
+    getCartData();
+  }
+
   return (
     <Box>
       <div className="navbar">
@@ -245,14 +274,15 @@ const Navbar = () => {
               <Box sx={{ flexGrow: 1 }} />
               <Box sx={{ display: { xs: "none", md: "flex" } }}>
                 {loggedUser && (
-                  <Typography>
+                  <Box>
                     <IconButton
                       size="large"
-                      aria-label="show 4 new mails"
+                      // aria-label="show 4 new mails"
                       color="inherit"
                       onClick={handleCartButton}
                     >
-                      <Badge badgeContent={loggedUser[0].cart} color="error">
+                      {/* <Badge badgeContent={loggedUser[0].cart} color="error"> */}
+                      <Badge badgeContent={cartData.length} color="error">
                         <ShoppingCart />
                       </Badge>
                     </IconButton>
@@ -268,7 +298,7 @@ const Navbar = () => {
                         <NotificationsIcon />
                       </Badge>
                     </IconButton>
-                  </Typography>
+                  </Box>
                 )}
 
                 <IconButton

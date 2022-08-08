@@ -12,7 +12,8 @@ import {
 import { db } from "../firebaseConfig";
 import { Box } from "@mui/system";
 import { productType } from "../Types/Product";
-import { Container, Grid, Paper } from "@mui/material";
+import { Container, Grid, Pagination, Paper, Typography } from "@mui/material";
+import AppPagination from "../components/pagination/Pagination";
 
 // type itemProps = {
 //     type: any
@@ -29,8 +30,11 @@ const AllProducts = () => {
   const [products, setProducts] = useState<Array<productType> | undefined>(
     undefined
   );
+  const [loading, setLoading] = useState<boolean>(false);
 
+  //   to Fetch products from Firebase
   useEffect(() => {
+    setLoading(true);
     const getProducts = () => {
       const productsArray: Array<any> = [];
       const path = "products";
@@ -39,10 +43,11 @@ const AllProducts = () => {
       getDocs(collection(db, path))
         .then((QuerySnapshot) => {
           QuerySnapshot.forEach((doc: any) => {
-            productsArray.push({ ...doc.data() });
-            console.log(doc.id, " =>", doc.data());
+            productsArray.push({ ...doc.data(), id: doc.id });
+            console.log(" =>", doc);
           });
           setProducts(productsArray);
+          setLoading(false);
         })
         .catch((error) => {
           console.log(error.message);
@@ -50,7 +55,19 @@ const AllProducts = () => {
     };
     getProducts();
   }, []);
-  console.log("products", products);
+  //   console.log("products", products);
+
+  //   const service = {
+  //     getData: () => {
+  //       return new Promise((resolve, reject) => {
+  //         resolve({
+  //           count: AllProducts.length,
+  //           data: AllProducts,
+  //         });
+  //       });
+  //     },
+  //   };
+  //   console.log("service", service);
 
   return (
     <Container sx={{ my: "20px" }}>
@@ -64,14 +81,22 @@ const AllProducts = () => {
       >
         {products &&
           products.map((product) => {
-            {
-              console.log("products", products);
-            }
             return <ProductContainer product={product} />;
           })}
       </Grid>
+      {loading && (
+        <Typography
+          style={{ fontSize: "30px", color: "#30EF09", fontWeight: "bolder" }}
+        >
+          Loading.....
+        </Typography>
+      )}
+      {!loading && <AppPagination />}
     </Container>
   );
 };
 
+// export { service };
+
+export const product = "product";
 export default AllProducts;

@@ -54,6 +54,8 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<any>("");
   const [successMsg, setSuccessMsg] = useState<String>("");
   const [errorMsg, setErrorMsg] = useState<String>("");
+  const [user, setUser] = useState<any>("");
+
   const navigate = useNavigate();
 
   // console.log("productDetailPage", props);
@@ -73,34 +75,38 @@ const ProductDetail = () => {
   // console.log("salePrice", salePrice);
 
   // if user not logged in and add item to cart
-  function GetCurrentUser() {
-    const [user, setUser] = useState<any>("");
-    const userCollectionRef = collection(db, "users");
+  // function GetCurrentUser() {
+  //   const userCollectionRef = collection(db, "users");
 
-    useEffect(() => {
-      auth.onAuthStateChanged((userLogged) => {
-        if (userLogged) {
-          console.log("user Mail", userLogged.email);
-          const getUsers = async () => {
-            const q = query(
-              collection(db, "users"),
-              where("uid", "==", userLogged.uid)
-            );
-            console.log("q", q);
-            const data = await getDocs(q);
-            setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-          };
-          getUsers();
-        } else {
-          setUser(null);
-        }
-      });
-    }, []);
-    return user;
-  }
+  useEffect(() => {
+    auth.onAuthStateChanged((userLogged) => {
+      if (userLogged) {
+        console.log("user Mail", userLogged.email);
+        const getUsers = async () => {
+          const q = query(
+            collection(db, "users"),
+            where("uid", "==", userLogged.uid)
+          );
+          console.log("q", q);
+          const data = await getDocs(q);
+          // setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+          data.docs.forEach((doc, index) => {
+            if (index === 0) {
+              setUser({ ...doc.data(), id: doc.id });
+            }
+          });
+        };
+        getUsers();
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
+  //   return user;
+  // }
 
-  const loggedUser = GetCurrentUser();
-  console.log("logged User detail", loggedUser);
+  // const loggedUser = GetCurrentUser();
+  // console.log("logged User detail", loggedUser);
 
   // To fetch product from firbase
   function GetCurrentProduct() {
@@ -128,15 +134,15 @@ const ProductDetail = () => {
   };
 
   const handleCartButton = () => {
-    if (loggedUser) {
-      addDoc(collection(db, `cart-${loggedUser[0].uid}`), {
+    if (user) {
+      addDoc(collection(db, `cart-${user.uid}`), {
         product,
         quantity: 1,
       }).then(() => {
         setSuccessMsg("Product added to cart");
         setTimeout(() => {
           // navigate("/cart");
-        }, 4000);
+        }, 2000);
       });
     } else {
       setErrorMsg("You Need to Login First for shopping");
@@ -212,8 +218,7 @@ const ProductDetail = () => {
                     }}
                   >
                     <Checkbox />
-                    <Typography>Complare with Other</Typography>{" "}
-                    {"\u00a0\u00a0"}
+                    <Typography>Compare with Other</Typography> {"\u00a0\u00a0"}
                     <Share />
                     {"\u00a0\u00a0"}
                     <Print />

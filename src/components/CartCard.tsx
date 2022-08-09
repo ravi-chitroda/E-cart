@@ -1,47 +1,72 @@
 import { Delete } from "@mui/icons-material";
 import { Button, Typography } from "@mui/material";
 import { Box } from "@mui/system";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { isTemplateMiddleOrTemplateTail } from "typescript";
+import { db } from "../firebaseConfig";
 import { product } from "../product-Components/AllProducts";
 import { productType } from "../Types/Product";
 
 type cartObj = {
   itemData: productType;
+  userid: any;
 };
 
 const CartCard = (props: cartObj) => {
   const [productQuantity, setProductQuantity] = useState<number>(1);
 
-  console.log("cartdatdProps", props.itemData);
+  console.log("cartCardProps", props.itemData);
 
   let p = props.itemData.product;
 
   let overallTax = 10 / 100;
-  let ourCommision = 10 / 100;
+  let ourCommission = 10 / 100;
   let extraFundForFun = 10 / 100;
 
   let mrp = parseInt(p.price);
-  console.log("mrp @ cart card", mrp);
+  // console.log("mrp @ cart card", mrp);
+  let discountPrise =
+    overallTax * mrp + ourCommission * mrp + extraFundForFun * mrp;
   let MRP2 =
-    mrp + overallTax * mrp + ourCommision * mrp + extraFundForFun * mrp;
+    mrp + overallTax * mrp + ourCommission * mrp + extraFundForFun * mrp;
   console.log("mrp2", MRP2);
   let newMrp = Math.round(MRP2);
-  console.log("newMRP", newMrp);
-  const salePrice = Math.round(newMrp - mrp);
+  // console.log("newMRP", newMrp);
+  const salePrice = Math.round(newMrp - discountPrise) * productQuantity;
   console.log("salePrice", salePrice);
 
-  const increaseQuantity = () => {
+  const increaseQuantity = async () => {
     setProductQuantity(productQuantity + 1);
+
+    const itemRef = doc(db, `cart-${props.userid}`, `${props.itemData.id}`);
+    await updateDoc(itemRef, {
+      quantity: productQuantity + 1,
+    }).then(() => {
+      console.log("Quantity is changed");
+    });
   };
 
-  const decreaseQuantity = () => {
+  const decreaseQuantity = async () => {
     if (productQuantity >= 1) {
       setProductQuantity(productQuantity - 1);
+
+      const itemRef = doc(db, `cart-${props.userid}`, `${props.itemData.id}`);
+      await updateDoc(itemRef, {
+        quantity: productQuantity - 1,
+      }).then(() => {
+        console.log("Quantity is changed");
+      });
     }
   };
 
-  const handleDeleteCartItem = () => {
+  const handleDeleteCartItem = async () => {
+    await deleteDoc(
+      doc(db, `cart-${props.userid}`, `${props.itemData.id}`)
+    ).then(() => {
+      console.log("document Deleted");
+    });
+
     setProductQuantity(0);
   };
 
@@ -54,8 +79,6 @@ const CartCard = (props: cartObj) => {
           justifyContent: "center",
         }}
       >
-        {/* <Typography>Cart Card</Typography> */}
-        {/* <Box>{props.itemData.productTitle}</Box> */}
         <Box>{p.productTitle}</Box>
         <Box
           component="img"
@@ -80,11 +103,10 @@ const CartCard = (props: cartObj) => {
           <Typography>{productQuantity}</Typography>
           <Button onClick={decreaseQuantity}>-</Button>
         </Box>
-        <Box>&#x20b9; {salePrice * productQuantity}</Box>
+        <Box>&#x20b9; {salePrice}</Box>
         <Box>
           <Delete sx={{ color: "red" }} onClick={handleDeleteCartItem} />
         </Box>
-        {/* <Box>{props.itemData.product.productTitle}</Box> */}
       </Box>
     </Box>
   );

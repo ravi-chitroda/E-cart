@@ -18,8 +18,6 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import Search from "@mui/icons-material/Search";
 import { Home, Sell, ShoppingCart } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-// import ecart from "../Images/ecart.jpg"
-// import logo3 from "../Images/logo3.png"
 import {
   collection,
   doc,
@@ -40,41 +38,61 @@ import { borderRadius } from "@mui/system";
 //  }
 
 const Navbar = () => {
+  const [cartData, setCartData] = useState<any>([]);
+  const [user, setUser] = useState<any>({});
+
   const navigate = useNavigate();
-  // const [loggedUser, setLoggedUser] = useState<any>("")
 
   // TO find current user with GetCurrentUser Function with below function and set it into user variable
-  const GetCurrentUser = () => {
-    const [user, setUser] = useState<any>("");
-    const userCollectionRef = collection(db, "users");
 
-    useEffect(() => {
-      auth.onAuthStateChanged((userLogged) => {
-        if (userLogged) {
-          const getUsers = async () => {
-            const q = query(
-              collection(db, "users"),
-              where("uid", "==", userLogged.uid)
-            ); //for match with firbase uid
-            // console.log(q)
-            const data = await getDocs(q); //checking all data of user if it exist and fetch data from database
-            // setUser(getDocs)
-            console.log("data", data);
-            setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-          };
-          getUsers();
-        } else {
-          setUser(null);
-        }
-      });
-    }, []);
-    return user;
-  };
+  // console.log("cartData", cartData);
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const getUsers = async () => {
+          const q = query(
+            collection(db, "users"),
+            where("uid", "==", user.uid)
+          ); //for match with firebase uid
+          // console.log(q)
+          const data = await getDocs(q); //checking all data of user if it exist and fetch data from database
+          // setUser(getDocs)
+          console.log("data", data);
+          data.docs.forEach((doc, index) => {
+            if (index === 0) {
+              setUser({ ...doc.data(), id: doc.id });
+            }
+          });
+        };
+        getUsers();
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
 
-  // document of that user stored in below loggedUser const
-  const loggedUser = GetCurrentUser();
-  // if (loggedUser) {
-  //   // console.log("logged User", loggedUser)
+  useEffect(() => {
+    if (!!user) {
+      const getCartData = async () => {
+        const cartArray: { id: string }[] = [];
+        const path = `cart-${user?.uid}`;
+        // console.log("cart Path", path);
+        await getDocs(collection(db, path)).then((QuerySnapshot) => {
+          QuerySnapshot.forEach((doc) => {
+            // console.log(doc.id, "=>>>>", doc.data());
+            cartArray.push({ ...doc.data(), id: doc.id });
+          });
+          setCartData(cartArray);
+        });
+        // .catch("got Some Error");
+      };
+      getCartData();
+    }
+  }, [user]);
+
+  // document of that user stored in below user const
+  // if (user) {
+  //   // console.log("logged User", user)
   // }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -108,7 +126,7 @@ const Navbar = () => {
   };
 
   const handleCartButton = () => {
-    setAnchorEl(null);
+    // setAnchorEl(null);
     navigate("/cart");
   };
   const handleLogOut = () => {
@@ -152,14 +170,14 @@ const Navbar = () => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      {!loggedUser && (
+      {!user && (
         <Typography>
           <MenuItem onClick={handleMenuCloseToProfile}>Profile</MenuItem>
           <MenuItem onClick={handleMenuClose}>Login</MenuItem>
           <MenuItem onClick={handleSignup}>Register</MenuItem>
         </Typography>
       )}
-      {loggedUser && (
+      {!!user && (
         <Typography>
           <MenuItem onClick={handleMenuCloseToProfile}>Profile</MenuItem>
           <MenuItem onClick={handleLogOut}>Logout</MenuItem>
@@ -185,63 +203,29 @@ const Navbar = () => {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      {/* <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem> */}
       <MenuItem>
         <IconButton
           size="large"
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
+          <Badge badgeContent={cartData.length} color="error">
+            <ShoppingCart onClick={handleCartButton} />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
+        {/* <p>Notifications</p> */}
+        <IconButton size="large" color="inherit">
+          <Home onClick={handleHomeIcon} />
+        </IconButton>
       </MenuItem>
-      {/* <MenuItem onClick={handleProfileMenuOpen}>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="primary-search-account-menu"
-            aria-haspopup="true"
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <p>Profile</p>
-        </MenuItem> */}
     </Menu>
   );
 
-  // all item to be stored in this cartData variable
-  const [cartData, setCartData] = useState<any>([]);
-  if (loggedUser) {
-    const getCartData = async () => {
-      const cartArray: { id: string }[] = [];
-      const path = `cart-${loggedUser[0].uid}`;
-      // console.log("cart Path", path);
-      getDocs(collection(db, path)).then((QuerySnapshot) => {
-        QuerySnapshot.forEach((doc) => {
-          // console.log(doc.id, "=>>>>", doc.data());
-          cartArray.push({ ...doc.data(), id: doc.id });
-        });
-        setCartData(cartArray);
-      });
-      // .catch("got Some Error");
-    };
-    getCartData();
-  }
+  console.log("length", cartData.length);
 
   return (
     <Box>
-      <div className="navbar">
+      <Box className="navbar">
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="static">
             <Toolbar>
@@ -273,7 +257,7 @@ const Navbar = () => {
 
               <Box sx={{ flexGrow: 1 }} />
               <Box sx={{ display: { xs: "none", md: "flex" } }}>
-                {loggedUser && (
+                {!!user && (
                   <Box>
                     <IconButton
                       size="large"
@@ -281,7 +265,7 @@ const Navbar = () => {
                       color="inherit"
                       onClick={handleCartButton}
                     >
-                      {/* <Badge badgeContent={loggedUser[0].cart} color="error"> */}
+                      {/* <Badge badgeContent={user?.cart} color="error"> */}
                       <Badge badgeContent={cartData.length} color="error">
                         <ShoppingCart />
                       </Badge>
@@ -309,7 +293,7 @@ const Navbar = () => {
                   <Home />
                 </IconButton>
 
-                {loggedUser && loggedUser[0].UserType == "Admin" ? (
+                {!!user && user?.UserType == "Admin" ? (
                   <IconButton
                     size="large"
                     color="inherit"
@@ -352,84 +336,7 @@ const Navbar = () => {
           {renderMobileMenu}
           {renderMenu}
         </Box>
-      </div>
-      {/* <Box>
-        <Link to="/product-type/mobile" style={{}}>
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "MediumOrchid",
-              border: "2px solid Indigo",
-              borderRadius: "3px",
-              marginLeft: "2px",
-              marginRight: "2px",
-              textDecoration: "none",
-            }}
-          >
-            Mobile
-          </Button>
-        </Link>
-        <Link to="/product-type/laptop">
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "MediumOrchid",
-              border: "2px solid Indigo",
-              borderRadius: "3px",
-              marginLeft: "2px",
-              marginRight: "2px",
-              textDecoration: "none",
-            }}
-          >
-            Laptop
-          </Button>
-        </Link>
-        <Link to="/product-type/watch">
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "MediumOrchid",
-              border: "2px solid Indigo",
-              borderRadius: "3px",
-              marginLeft: "2px",
-              marginRight: "2px",
-              textDecoration: "none",
-            }}
-          >
-            Watch
-          </Button>
-        </Link>
-        <Link to="/product-type/headphone">
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "MediumOrchid",
-              border: "2px solid Indigo",
-              borderRadius: "3px",
-              marginLeft: "2px",
-              marginRight: "2px",
-              textDecoration: "none",
-            }}
-          >
-            Headphone
-          </Button>
-        </Link>
-        <Link to="/product-type/shoe">
-          <Button
-            style={{
-              color: "white",
-              backgroundColor: "MediumOrchid",
-              border: "2px solid Indigo",
-              borderRadius: "3px",
-              marginLeft: "2px",
-              marginRight: "2px",
-              textDecoration: "none",
-            }}
-          >
-            Shoe
-          </Button>
-        </Link>
-      </Box> */}
+      </Box>
     </Box>
   );
 };

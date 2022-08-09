@@ -8,43 +8,44 @@ import Navbar from "./Navbar";
 
 type HomeProps = {};
 const Home = () => {
-  const GetCurrentUser = () => {
-    const [user, setUser] = useState<any>("");
-    const userCollectionRef = collection(db, "users");
+  const [user, setUser] = useState<any>({});
 
-    useEffect(() => {
-      auth.onAuthStateChanged((userLogged) => {
-        if (userLogged) {
-          const getUsers = async () => {
-            const q = query(
-              collection(db, "users"),
-              where("uid", "==", userLogged.uid)
-            ); //for match with firbase uid
-            // console.log(q)
-            const data = await getDocs(q); //checking all data of user if it exist and fetch data from database
-            // setUser(getDocs)
-            console.log("data", data);
-            setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-          };
-          getUsers();
-        } else {
-          setUser(null);
-        }
-      });
-    }, []);
-    return user;
-  };
-  const loggedUser = GetCurrentUser();
-  if (loggedUser) {
-    console.log("logged User", loggedUser[0].Email);
-  }
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const getUsers = async () => {
+          console.log("getUser", getUsers);
+          const q = query(
+            collection(db, "users"),
+            where("uid", "==", user.uid)
+          ); //for match with firebase uid
+          console.log("Home Page query", q);
+          const data = await getDocs(q); //checking all data of user if it exist and fetch data from database
+          // setUser(getDocs)
+          console.log("data", data);
+          // setUser(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+          data.docs.forEach((doc, index) => {
+            if (index === 0) {
+              setUser({ ...doc.data(), id: doc.id });
+            }
+          });
+        };
+        getUsers();
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
+
+  console.log("user@Home", user);
+  // if (user) {
+  //   console.log("logged User", user[0].Email);
+  // }
 
   return (
     <Box>
       <Navbar />
-      <Typography>
-        {loggedUser ? loggedUser[0].Email : "No Logged User"}
-      </Typography>
+      <Typography>{user ? user.Email : "No Logged User"}</Typography>
       <AllProducts />
     </Box>
   );

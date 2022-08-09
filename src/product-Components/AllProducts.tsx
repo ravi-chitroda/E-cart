@@ -38,13 +38,13 @@ const AllProducts = () => {
     const getProducts = () => {
       const productsArray: Array<any> = [];
       const path = "products";
-      console.log("path", path);
+      // console.log("path", path);
 
       getDocs(collection(db, path))
         .then((QuerySnapshot) => {
           QuerySnapshot.forEach((doc: any) => {
             productsArray.push({ ...doc.data(), id: doc.id });
-            console.log(" =>", doc);
+            // console.log(" =>", doc);
           });
           setProducts(productsArray);
           setLoading(false);

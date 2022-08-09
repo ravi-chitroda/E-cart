@@ -31,7 +31,7 @@ const AppPagination = () => {
     const getProducts = () => {
       const productsArray: Array<any> = [];
       const path = "products";
-      console.log("path", path);
+      // console.log("path", path);
 
       getDocs(collection(db, path))
         .then((QuerySnapshot) => {
@@ -70,9 +70,9 @@ const AppPagination = () => {
     // });
   }, []);
 
-  {
-    console.log("page", pagination);
-  }
+  // {
+  //   console.log("page", pagination);
+  // }
 
   return (
     <Box

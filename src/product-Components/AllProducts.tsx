@@ -91,12 +91,16 @@ const AllProducts = () => {
           Loading.....
         </Typography>
       )}
-      {!loading && <AppPagination />}
+      {!loading && (
+        <AppPagination
+        //  setProducts={(p: any) => setProducts(p)}
+        />
+      )}
     </Container>
   );
 };
 
 // export { service };
 
-export const product = "product";
+export const products = "product";
 export default AllProducts;

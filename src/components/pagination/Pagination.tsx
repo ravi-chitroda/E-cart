@@ -10,47 +10,68 @@ import {
   QuerySnapshot,
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+// import { products } from "../../product-Components/AllProducts";
+// import service from "../../services/Index";
 // import Service, { serviceData } from "../../service/Service";
 // import {db} from ''
 
 type productObj = {
   product: productType;
+  from: any;
+  to: any;
 };
+// type proObj = {
+//   setProducts
+// }
 
 const pageSize = 3;
 
 const AppPagination = () => {
-  const [products, setProducts] = useState<Array<productType> | undefined>(
-    undefined
-  );
+  const [products, setProducts] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  //   to Fetch products from Firebase
-  useEffect(() => {
-    setLoading(true);
-    const getProducts = () => {
-      const productsArray: Array<any> = [];
-      const path = "products";
-      // console.log("path", path);
+  console.log("products", products);
 
-      getDocs(collection(db, path))
-        .then((QuerySnapshot) => {
-          QuerySnapshot.forEach((doc: any) => {
-            productsArray.push({ ...doc.data() });
-            // console.log(doc.id, " =>", doc.data());
-          });
-          setProducts(productsArray);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log(error.message);
+  const service = {
+    getData: ({ from, to }: any) => {
+      return new Promise((resolve) => {
+        const data = products.slice(from, to);
+        console.log("data of service", data);
+        resolve({
+          count: products.length,
+          data: data,
         });
-    };
-    getProducts();
-  }, []);
-  // console.log("products", products);
+      });
+    },
+  };
+  // console.log("service", service);
 
-  const [pagination, setPagination] = useState<any | number | undefined>({
+  //   to Fetch products from Firebase
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const getProducts = () => {
+  //     const productsArray: Array<any> = [];
+  //     const path = "products";
+  //     // console.log("path", path);
+
+  //     getDocs(collection(db, path))
+  //       .then((QuerySnapshot) => {
+  //         QuerySnapshot.forEach((doc: any) => {
+  //           productsArray.push({ ...doc.data() });
+  //           // console.log(doc.id, " =>", doc.data());
+  //         });
+  //         setProducts(productsArray);
+  //         setLoading(false);
+  //       })
+  //       .catch((error) => {
+  //         console.log(error.message);
+  //       });
+  //   };
+  //   getProducts();
+  // }, []);
+  // // console.log("products", products);
+
+  const [pagination, setPagination] = useState<any>({
     count: 0,
     from: 0,
     to: 0,
@@ -63,16 +84,34 @@ const AppPagination = () => {
     //     console.log(response);
     //     setPagination({ ...pagination, count: response.count });
     //   });
-    // service.getData({ from: pagination.from }, { to: pagination.to })
-    // .then((response: { count: any }) => {
-    //   console.log(response);
-    //   setPagination({ ...pagination, count: response.count });
-    // });
-  }, []);
+    // service
+    //   .getData({ from: pagination.from}, {to: pagination.to })
+    //   .then((response: any) => {
+    //     console.log(response);
+    //     setPagination({ ...pagination, count: response.count });
+    //   });
+    service
+      .getData({ from: pagination.from, to: pagination.to })
+      .then((response: any) => {
+        setPagination({ ...pagination, count: response.count });
+        console.log("response of pagination", response);
+        setProducts(response.data);
+      });
+  }, [pagination.from, pagination.to]);
 
   // {
   //   console.log("page", pagination);
   // }
+
+  const handlePageChange = (_event: any, page: number) => {
+    const from = (page - 1) * pageSize;
+    console.log("from", from);
+    const to = (page - 1) * pageSize + pageSize;
+    console.log("to", to);
+
+    setPagination({ ...pagination, from: from, to: to });
+  };
+  console.log("pagination", pagination);
 
   return (
     <Box
@@ -85,10 +124,11 @@ const AppPagination = () => {
     >
       <Pagination
         count={Math.ceil(pagination.count / pageSize)}
-        color={"primary"}
+        color="primary"
         variant={"outlined"}
-        defaultPage={pagination}
-        onChange={(_event, value) => setPagination(value)}
+        defaultPage={2}
+        // onChange={(_event, value) => setPagination(value)}
+        onChange={handlePageChange}
       />
     </Box>
   );

@@ -1,4 +1,4 @@
-import AllProducts, { product } from "../product-Components/AllProducts";
+import AllProducts, { products } from "../product-Components/AllProducts";
 import { useState, useEffect } from "react";
 import { productType } from "../Types/Product";
 // import {
@@ -10,20 +10,20 @@ import { productType } from "../Types/Product";
 // } from "firebase/firestore";
 // import { db } from "../firebaseConfig";
 
-type productObj = {
-  product: productType;
-  // slice: any;
-};
-console.log("product @ index", product);
+// type productObj = {
+//   product: productType;
+//   // slice: any;
+// };
+// console.log("product @ index", products);
 
-console.log("console", AllProducts);
+// console.log("console", AllProducts);
 
 const service = {
-  getData: (props: productObj, { from, to }: any) => {
+  getData: ({ from, to }: any) => {
     return new Promise((resolve, reject) => {
-      const data = product.slice(from, to);
+      const data = products.slice(from, to);
       resolve({
-        count: product.length,
+        count: products.length,
         data: data,
       });
     });

@@ -5,7 +5,7 @@ import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { isTemplateMiddleOrTemplateTail } from "typescript";
 import { db } from "../firebaseConfig";
-import { product } from "../product-Components/AllProducts";
+import { products } from "../product-Components/AllProducts";
 import { productType } from "../Types/Product";
 
 type cartObj = {
